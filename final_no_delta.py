@@ -61,25 +61,25 @@ MIN_LAP_TIME_S = 60.0
 WIN_W, WIN_H = 800, 480
 PAD_FRACTION = 0.08
 
-# 레이아웃
+# layout
 MAP_RECT = (20, 20, 280, 390) 
 G_SIZE     = 160
 GM_POS     = (WIN_W - 20 - G_SIZE, 220)
 GM_SIZE    = (G_SIZE, G_SIZE)
 
-# 가운데 상단 랩 타이머 박스
+# lap timer
 MID_X0 = MAP_RECT[0] + MAP_RECT[2] + 10
 MID_X1 = GM_POS[0] - 10
 LAP_RECT = (MID_X0, 20, max(140, MID_X1 - MID_X0), 170)
 
-# 속도계: 위치/크기 (잘림 방지)
+# speed meter
 SPD_X = MAP_RECT[0] + MAP_RECT[2] + 5
 SPD_Y = 200
 SPD_W = (GM_POS[0] - 10) - SPD_X
 SPD_H = 300
 SPD_RECT = (SPD_X, SPD_Y, max(280, SPD_W), SPD_H)
 
-# 폰트
+# font
 FONT_LAP_LABEL = 22
 FONT_LAP_TIME  = 32
 FONT_SPEED_NUM = 22
@@ -411,7 +411,7 @@ def configure_gnss_ubx_10hz(port: str, baud: int):
                                      msgClass=0xF0, msgID=msgid,
                                      rateDDC=0, rateUART1=0, rateUSB=1, rateSPI=0, rateI2C=0)
                 s.write(cfg_msg.serialize())
-            for msgid in (0x00, 0x01, 0x02, 0x03, 0x06, 0x07):  # GGA,GLL,GSA,GSV,GRS,GST 등 OFF
+            for msgid in (0x00, 0x01, 0x02, 0x03, 0x06, 0x07):  # GGA,GLL,GSA,GSV,GRS,GST OFF
                 cfg_msg_off = UBXMessage("CFG", "CFG-MSG", SET,
                                          msgClass=0xF0, msgID=msgid,
                                          rateDDC=0, rateUART1=0, rateUSB=0, rateSPI=0, rateI2C=0)
@@ -522,7 +522,7 @@ class GMeterHUD:
         pygame.draw.line(surf, (80, 80, 80), (cx - self.R_pix, cy), (cx + self.R_pix, cy), 1)
         pygame.draw.line(surf, (80, 80, 80), (cx, cy - self.R_pix), (cx, cy + self.R_pix), 1)
 
-        # ---- 피크점 (빨강) 먼저 그리기 → 아래 레이어 ----
+        # ---- 피크점 ----
         pnx = max(-1.0, min(1.0, peak_lat_g / cap))
         pny = max(-1.0, min(1.0, peak_lon_g / cap))
         px = int(cx + pnx * self.R_pix)
@@ -530,7 +530,7 @@ class GMeterHUD:
         px, py = self._clamp_dot(cx, cy, px, py)
         pygame.draw.circle(surf, (255, 64, 64), (px, py), 6)
 
-        # ---- 현재점 (하늘색) 나중에 그리기 → 위 레이어 ----
+        # ---- 현재점 ----
         nx = max(-1.0, min(1.0, glat / cap))
         ny = max(-1.0, min(1.0, glon / cap))
         sx = int(cx + nx * self.R_pix)
@@ -551,15 +551,15 @@ class LapBoxHUD:
         val = font_time.render(fmt_lap_time(run_t if run_t is not None else -1), True, (240,240,240)); surf.blit(val, (x+pad, oy))
 
 class AnalogSpeedoHUD:
-    """우측 하단 아날로그 속도계 — 0을 8시(-170°) 근처(스윕 -170~+70°), 숫자 빨강, 클리핑 방지"""
+    """우측 하단 아날로그 속도계"""
     def __init__(self, rect): self.rect = pygame.Rect(rect)
     def draw(self, surf, font_num, speed_kmh):
         pygame.draw.rect(surf, (30,30,30), self.rect)
         x, y, w, h = self.rect
         r  = int(min(w, h) * 0.38)
-        cx = x + int(w * 0.48)     # 약간 왼쪽
-        cy = y + int(h * 0.48)     # 약간 위
-        ang_min = math.radians(-190)   # 더 반시계로
+        cx = x + int(w * 0.48)
+        cy = y + int(h * 0.48)
+        ang_min = math.radians(-190)
         ang_max = math.radians( +20)
         pygame.draw.circle(surf, (50,50,50), (cx, cy), r, 2)
         for v in range(0, int(SPEEDO_MAX_KMH)+1, SPEEDO_TICK_STEP):
