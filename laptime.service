@@ -1,0 +1,22 @@
+[Unit]
+Description=LapTime HUD Service (X11)
+After=display-manager.service
+Wants=display-manager.service
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/DJY
+# X 환경
+Environment=DISPLAY=:0
+Environment=XAUTHORITY=/home/pi/.Xauthority
+Environment=SDL_VIDEODRIVER=x11
+# X가 완전히 뜨기 전에 시작하면 검은화면/에러가 나올 수 있어 대기
+ExecStartPre=/bin/sleep 8
+# 실행
+ExecStart=/usr/bin/python3 /home/pi/DJY/final_no_delta.py
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=graphical.target
